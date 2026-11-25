@@ -176,7 +176,7 @@ Setup guides, with a config example for each, are in [docs/idp/](docs/idp/README
 ```yaml
 services:
   gateway:
-    # Pin the release you deploy by digest. Find it on the release page or with
+    # Pin the release you deploy by digest. Find it on the package page on GitHub or with
     # `docker buildx imagetools inspect ghcr.io/richtea/enodia:<version>`.
     image: ghcr.io/richtea/enodia:0.1.0@sha256:bc576cda219ed4d384b8aebcbb91ecf8644407a9d7cab0e7da5e6ddda70234b6
     read_only: true
