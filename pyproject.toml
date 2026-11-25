@@ -1,6 +1,6 @@
 [project]
 name = "enodia"
-version = "0.0.1"
+version = "0.1.0"
 description = "OAuth resource-server gateway for MCP servers that only support a static bearer token"
 requires-python = ">=3.13"
 license = "MIT"
