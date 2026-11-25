@@ -1,0 +1,12 @@
+{
+  "name": "enodia-release-tools",
+  "private": true,
+  "description": "Pinned keep-a-changelog CLI (kac) used by scripts/release.py. Install with `npm ci --ignore-scripts`.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "dependencies": {
+    "@release-flow/keep-a-changelog": "3.1.0"
+  }
+}
