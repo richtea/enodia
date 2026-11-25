@@ -231,9 +231,12 @@ type, restart the gateway.
 
 ## Image
 
-- Built by GitHub Actions on each `v*.*.*` tag for `linux/amd64` and `linux/arm64`.
+- Built by GitHub Actions for `linux/amd64` and `linux/arm64` when a GitHub release is published (see
+  [docs/releasing.md](docs/releasing.md)).
 
-- Published to `ghcr.io/richtea/enodia` with build provenance attestations.
+- Published to `ghcr.io/richtea/enodia` with build provenance attestations, tagged with the full version (e.g.
+  `1.2.3`). Stable releases also update `1.2` and `latest`; prereleases (e.g. `1.3.0-rc.1`) get only their own
+  tag.
 
 - Runs as UID 1000 on Python 3.13 slim. The base image is pinned by digest and every Python dependency by hash.
 
