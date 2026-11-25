@@ -1,5 +1,5 @@
 # enodia: Python 3.13.18 slim (Debian trixie), pinned by digest.
-# uv 0.13.7, pinned by digest. Used only in the builder stage.
+# uv 0.13.10, pinned by digest. Used only in the builder stage.
 FROM ghcr.io/astral-sh/uv:0.13.10@sha256:a3ea1357342c1a4bf9a0c53a3deb1b55379aefa037338d8113d5771efa01774f AS uv
 
 FROM python:3.13-slim-trixie@sha256:1b5c0692836eae9b028cc352d7146872f36939aa1fb0de24d3ef6df307b956c9 AS builder
