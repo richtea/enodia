@@ -103,11 +103,16 @@ These settings live in GitHub, not in this repository. Set them up before the fi
   - require a pull request (0 approvals is fine for a single maintainer);
   - require the status checks *Build and test / Test*, *Build and test / Smoke test image* and *Release PR check*;
   - block force pushes and deletion.
-- **Rulesets → tags `v*`**: block updates and deletion, and restrict creation to admins. Publishing a release creates
-  its tag.
+- **Rulesets → tags `v*`**: two rulesets, both targeting `refs/tags/v*`. They have to be separate because a
+  ruleset's bypass list applies to all of its rules.
+  - `tags`: *Restrict creations*, with the **Repository admin** and **Maintain** roles as bypass actors (always).
+    Publishing a release creates its tag, so the people who publish releases need this bypass.
+  - `tags-immutable`: *Restrict updates*, *Restrict deletions* and *Block force pushes*, with **no** bypass actors,
+    so nobody can move or delete a release tag once it exists.
 - **Settings → General → Releases**: turn on immutable releases.
 - **Environments → `release`**:
-  - add yourself as a required reviewer;
+  - add yourself as a required reviewer (leave "Prevent self-review" off if you are the only maintainer);
+  - untick "Allow administrators to bypass configured protection rules", so admins also have to approve;
   - limit deployment to tags matching `v*`;
   - no secrets are needed.
 - **Settings → Actions → General**:
