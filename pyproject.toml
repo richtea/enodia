@@ -1,6 +1,6 @@
 [project]
 name = "enodia"
-version = "0.2.0"
+version = "0.0.1"
 description = "OAuth resource-server gateway for MCP servers that only support a static bearer token"
 requires-python = ">=3.13"
 license = "MIT"
@@ -39,7 +39,7 @@ target-version = "py313"
 python-version = "3.13"
 
 [tool.ty.src]
-include = ["src", "tests"]
+include = ["src", "tests", "scripts"]
 
 [tool.ty.analysis]
 # Infer return types of unannotated functions instead of treating them as Unknown (off by default).

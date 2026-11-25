@@ -3,3 +3,6 @@ __pycache__/
 .pytest_cache/
 secrets/
 .env
+
+# Release tooling (scripts/release.py)
+tools/kac/node_modules/

@@ -1,0 +1,91 @@
+name: Release PR merged
+
+# When a release pull request (branch chore/release-<version>, label `release`) is merged into main, create a
+# draft GitHub release for it at the merge commit. Publishing the draft triggers release-published.yml.
+# Only PRs opened and merged by users with admin or maintain permission produce a draft.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions: {}
+
+concurrency:
+  group: release-draft
+  cancel-in-progress: false
+
+jobs:
+  draft:
+    name: Create draft release
+    if: >-
+      github.event.pull_request.merged == true
+      && contains(github.event.pull_request.labels.*.name, 'release')
+      && github.event.pull_request.head.repo.full_name == github.repository
+      && startsWith(github.event.pull_request.head.ref, 'chore/release-')
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write # create the draft release
+    steps:
+      - name: Check the author and merger may release
+        env:
+          REPO: ${{ github.repository }}
+          AUTHOR: ${{ github.event.pull_request.user.login }}
+          MERGER: ${{ github.event.pull_request.merged_by.login }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          for login in "$AUTHOR" "$MERGER"; do
+            role=$(gh api "repos/$REPO/collaborators/$login/permission" --jq .role_name)
+            case "$role" in
+              admin|maintain) echo "$login has the $role role" ;;
+              *) echo "::error::$login has the '$role' role; release PRs must be opened and merged by admin or maintain users"; exit 1 ;;
+            esac
+          done
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Check the release version
+        id: version
+        env:
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          REPO: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          version=$(python3 -I scripts/release.py parse-branch "$HEAD_REF")
+          python3 -I scripts/release.py verify "$version"
+          # Drafts are included: this token can see them.
+          { git tag --list 'v*'; gh api "repos/$REPO/releases" --paginate --jq '.[].tag_name'; } > "$RUNNER_TEMP/existing.txt"
+          python3 -I scripts/release.py check-newer "$version" --existing "$RUNNER_TEMP/existing.txt"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$(python3 -I scripts/release.py is-prerelease "$version")" >> "$GITHUB_OUTPUT"
+
+      - name: Get the release notes
+        id: notes
+        uses: release-flow/keep-a-changelog-action@d09809647db30665ded070fe40267c574b357edd # v3.1.0
+        with:
+          command: query
+          version: ${{ steps.version.outputs.version }}
+
+      - name: Create the draft release
+        env:
+          REPO: ${{ github.repository }}
+          VERSION: ${{ steps.version.outputs.version }}
+          PRERELEASE: ${{ steps.version.outputs.prerelease }}
+          NOTES: ${{ steps.notes.outputs.release-notes }}
+          TARGET: ${{ github.event.pull_request.merge_commit_sha }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          printf '%s\n' "$NOTES" | python3 -I scripts/release.py clean-notes > "$RUNNER_TEMP/notes.md"
+          extra=()
+          if [[ "$PRERELEASE" == "true" ]]; then extra+=(--prerelease); fi
+          url=$(gh release create "v$VERSION" --repo "$REPO" --draft --target "$TARGET" --title "v$VERSION" \
+            --notes-file "$RUNNER_TEMP/notes.md" "${extra[@]}")
+          echo "::notice title=Draft release created::Review and publish $url to publish the image"
+          echo "Draft release created: $url" >> "$GITHUB_STEP_SUMMARY"
