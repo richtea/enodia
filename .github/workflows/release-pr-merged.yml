@@ -82,6 +82,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
+          # clean-notes works around a kac bug that adds link definitions to the oldest release's notes:
+          # https://github.com/release-flow/keep-a-changelog-action/issues/98
           printf '%s\n' "$NOTES" | python3 -I scripts/release.py clean-notes > "$RUNNER_TEMP/notes.md"
           extra=()
           if [[ "$PRERELEASE" == "true" ]]; then extra+=(--prerelease); fi
