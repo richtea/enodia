@@ -143,7 +143,9 @@ def changelog_versions(text: str) -> list[Version]:
 def strip_link_definitions(notes: str) -> str:
     """Remove Markdown link definitions from release notes.
 
-    kac 3.1.0's `query` counts the changelog's trailing link definitions as part of the oldest release's notes.
+    Works around a bug in kac 3.1.0: `query` counts the changelog's trailing link definitions as part of the oldest
+    release's notes (https://github.com/release-flow/keep-a-changelog-action/issues/98). Once a fixed kac is pinned in
+    tools/kac, this can go, along with the `clean-notes` step in release-pr-merged.yml.
     """
     lines = [line for line in notes.splitlines() if not LINK_DEFINITION_RE.match(line)]
     return "\n".join(lines).strip() + "\n"

@@ -38,6 +38,11 @@ Versions follow [Semantic Versioning](https://semver.org/). Prereleases must tak
 The script installs `kac` into `tools/kac/node_modules` with `npm ci --ignore-scripts`, using the exact versions and
 integrity hashes in `tools/kac/package-lock.json`.
 
+kac 3.1.0 has a bug: the release notes it returns for the oldest release in the changelog include the link
+definitions at the end of the file ([release-flow/keep-a-changelog-action#98](https://github.com/release-flow/keep-a-changelog-action/issues/98)).
+This affects the first release in particular. The script and the draft-release workflow both strip link definitions
+from the notes until a fixed kac version is pinned.
+
 ## 1. Prepare
 
 Run a dry run first. It shows the new version, the changelog diff, the release notes and the commands it would run.
